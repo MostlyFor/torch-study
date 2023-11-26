@@ -223,6 +223,32 @@ def pow(x, c):
     return Pow(c)(x)
 
 
+class Sin(Function):
+    def forward(self, x):
+        y = np.sin(x)
+        return y
+
+    def backward(self, gy):
+        x = self.inputs[0].data  # 어차피 하나일거잖아
+        dydx = np.cos(x)
+        gx = dydx * gy
+        return gx
+
+
+def sin(x):
+    return Sin()(x)
+
+
+def taylor_sin(x, threshold=1e-150):
+    y = 0
+    for i in range(100000):
+        t = (-1) ** i / math.factorial(2 * i + 1) * x ** (2 * i + 1)
+        y = y + t
+        if abs(t.data) < threshold:
+            break
+    return y
+
+
 @contextlib.contextmanager
 def using_config(name, value):
     old_value = getattr(Config, name)
