@@ -7,9 +7,8 @@ class Sin(Function):
         return y
 
     def backward(self, gy):
-        x = self.inputs
-        dydx = cos(x)
-        gx = dydx * gy
+        x, = self.inputs
+        gx = cos(x) * gy
         return gx
 
 
@@ -23,11 +22,12 @@ class Cos(Function):
         return y
     
     def backward(self, gy):
-        x = self.inputs
-        dydx = np.sin(x)
-        gx = dydx * gy
+        x, = self.inputs
+        gx = -sin(x) * gy
         return gx
     
 def cos(x):
     return Cos()(x)
+
+
     
