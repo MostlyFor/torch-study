@@ -1,8 +1,6 @@
 import numpy as np
 import weakref
 import contextlib
-import math
-
 
 class Config:
     enable_backprop = True
@@ -46,9 +44,9 @@ class Variable:
         p = str(self.data).replace("\n", "\n" + " " * 9)
         return "variable(" + p + ")"
 
-    def backward(self, retain_grad=False):
+    def backward(self, retain_grad=False, create_graph = False):
         if self.grad is None:
-            self.grad = np.ones_like(self.data)
+            self.grad = Variable(np.ones_like(self.data))
 
         funcs = []
         seen_set = set()
@@ -64,18 +62,19 @@ class Variable:
         while funcs:
             f = funcs.pop()
             gys = [output().grad for output in f.outputs]
-            gxs = f.backward(*gys)
-            if not isinstance(gxs, tuple):
-                gxs = (gxs,)
+            with using_config('enable_backprop', create_graph):
+                gxs = f.backward(*gys)
+                if not isinstance(gxs, tuple):
+                    gxs = (gxs,)
 
-            for x, gx in zip(f.inputs, gxs):
-                if x.grad is None:
-                    x.grad = gx
-                else:
-                    x.grad = x.grad + gx # 이 부분이 이젠 큰 의미가 없을수도
+                for x, gx in zip(f.inputs, gxs):
+                    if x.grad is None:
+                        x.grad = gx
+                    else:
+                        x.grad = x.grad + gx
 
-                if x.creator is not None:
-                    add_func(x.creator)
+                    if x.creator is not None:
+                        add_func(x.creator)
 
             if retain_grad == False:
                 for y in f.outputs:
@@ -106,7 +105,7 @@ class Function:
             ys = (ys,)
         outputs = [Variable(as_array(y)) for y in ys]
 
-        if Config.enable_backprop:
+        if Config.enable_backprop: # 
             self.generation = max([x.generation for x in inputs])
             self.inputs = inputs
             self.outputs = [weakref.ref(output) for output in outputs]
@@ -142,7 +141,7 @@ class Mul(Function):
         return y
 
     def backward(self, gy):
-        x0, x1 = self.inputs[0].data, self.inputs[1].data
+        x0, x1 = self.inputs 
         return gy * x1, gy * x0
 
 
@@ -188,7 +187,7 @@ class Div(Function):
         return y
 
     def backward(self, gy):
-        x0, x1 = self.inputs[0].data, self.inputs[1].data
+        x0, x1 = self.inputs
         gx0 = gy / x1
         gx1 = gy * (-x0 / x1**2)
         return gx0, gx1
@@ -213,7 +212,7 @@ class Pow(Function):
         return y
 
     def backward(self, gy):
-        x = self.inputs[0].data
+        x = self.inputs[0]
         c = self.c
 
         gx = c * x ** (c - 1) * gy
@@ -230,7 +229,7 @@ class Sin(Function):
         return y
 
     def backward(self, gy):
-        x = self.inputs[0].data
+        x = self.inputs[0]
         dydx = np.cos(x)
         gx = dydx * gy
         return gx
@@ -275,9 +274,3 @@ def setup_variable():
     Variable.__truediv__ = div
     Variable.__rtruediv__ = rdiv
     Variable.__pow__ = pow
-
-
-
-x = Variable(1.0)
-y = sin(x)
-y.backward(retain_grad=1)
