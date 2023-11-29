@@ -7,13 +7,13 @@ class Config:
 
 
 class Variable:
-    def __init__(self, data: float, name=None):
-        self.data = np.array(data)
+    __array_priority__ = 200
+    def __init__(self, data : any, name=None):
+        self.data = np.array(data) # ndarray로 datatype 고정
         self.name = name
         self.grad = None
         self.creator = None
         self.generation = 0
-        __array_priority__ = 200
 
     def set_creator(self, func):
         self.creator = func
@@ -58,7 +58,7 @@ class Variable:
                 funcs.sort(key=lambda x: x.generation)  # 세대 정렬
 
         add_func(self.creator)
-
+        
         while funcs:
             f = funcs.pop()
             gys = [output().grad for output in f.outputs]
@@ -84,28 +84,30 @@ class Variable:
         self.grad = None
 
 
-def as_variable(obj):
+def as_variable(obj: Variable or np.array):
     if isinstance(obj, Variable):
         return obj
     return Variable(obj)
 
 
-def as_array(x):
+def as_ndarray(x):
     if np.isscalar(x):
         return np.array(x)
     return x
 
 
 class Function:
-    def __call__(self, *inputs):
+    def __call__(self, *inputs : list[Variable]) -> list[Variable]:
+        #for forward
         inputs = [as_variable(x) for x in inputs]
         xs = [x.data for x in inputs]
         ys = self.forward(*xs)
         if not isinstance(ys, tuple):
             ys = (ys,)
-        outputs = [Variable(as_array(y)) for y in ys]
+        outputs = [Variable(as_ndarray(y)) for y in ys]
 
-        if Config.enable_backprop: # 
+        # for backward
+        if Config.enable_backprop:
             self.generation = max([x.generation for x in inputs])
             self.inputs = inputs
             self.outputs = [weakref.ref(output) for output in outputs]
@@ -114,7 +116,7 @@ class Function:
 
         return outputs if len(outputs) > 1 else outputs[0]
 
-    def forward(self, x: int):
+    def forward(self, x):
         raise NotImplementedError()
 
     def backward(self, g):
