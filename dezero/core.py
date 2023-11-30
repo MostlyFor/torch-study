@@ -146,7 +146,7 @@ class Add(Function):
 
 
 def add(x0, x1):
-    x1 = as_array(x1)
+    x1 = as_ndarray(x1)
     return Add()(x0, x1)
 
 
@@ -161,7 +161,7 @@ class Mul(Function):
 
 
 def mul(x0, x1):
-    x1 = as_array(x1)
+    x1 = as_ndarray(x1)
     return Mul()(x0, x1)
 
 
@@ -187,12 +187,12 @@ class Sub(Function):
 
 
 def sub(x0, x1):
-    x1 = as_array(x1)
+    x1 = as_ndarray(x1)
     return Sub()(x0, x1)
 
 
 def rsub(x0, x1):
-    x1 = as_array(x1)
+    x1 = as_ndarray(x1)
     return Sub()(x1, x0)
 
 
@@ -209,12 +209,12 @@ class Div(Function):
 
 
 def div(x0, x1):
-    x1 = as_array(x1)
+    x1 = as_ndarray(x1)
     return Div()(x0, x1)
 
 
 def rdiv(x0, x1):
-    x1 = as_array(x1)
+    x1 = as_ndarray(x1)
     return Div()(x1, x0)
 
 
