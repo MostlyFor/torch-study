@@ -145,3 +145,33 @@ class MatMul(Function):
     
 def matmul(x,W):
     return MatMul()(x, W)
+
+
+class MeanSquaredError(Function):
+    def forward(self, x0, x1): # 예측값, 정답값
+        diff = x0 - x1
+        y = (diff ** 2).sum() / len(diff)
+        return y
+    
+    def backward(self, gy):
+        x0, x1 = self.inputs
+        diff = x0 - x1
+        gx0 = gy * diff * (2. /len(diff))
+        gx1 = -gx0
+        return gx0, gx1
+
+def mean_squared_error(x0, x1):
+    return MeanSquaredError()(x0, x1)
+
+class Exp(Function):
+    def forward(self, x):
+        return np.exp(x)
+    
+    def backward(self, gy):
+        y = self.outputs[0]()
+        gx = gy * y
+        return gx
+    
+def exp(x):
+    return Exp()(x)
+
