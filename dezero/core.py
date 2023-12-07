@@ -10,7 +10,7 @@ class Config:
 class Variable:
     __array_priority__ = 200
     def __init__(self, data : any, name=None):
-        self.data = np.array(data) # ndarray로 datatype 고정
+        self.data = np.array(data).astype(np.float64) # ndarray로 datatype 고정, float64
         self.name = name
         self.grad = None
         self.creator = None
@@ -74,9 +74,9 @@ class Variable:
         
         while funcs:
             f = funcs.pop()
-            gys = [output().grad for output in f.outputs]
-            with using_config('enable_backprop', create_graph):
-                gxs = f.backward(*gys)
+            gys = [output().grad for output in f.outputs] # 역전파 변수
+            with using_config('enable_backprop', create_graph): # 역전파 2번 할건지에 대한 그래프 설정
+                gxs = f.backward(*gys) # grdient 결과 받기 , tuple 형태
                 if not isinstance(gxs, tuple):
                     gxs = (gxs,)
 
