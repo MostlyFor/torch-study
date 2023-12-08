@@ -1,3 +1,4 @@
+from dezero.core import Parameter
 from dezero.core import Variable
 from dezero.core import Function
 from dezero.core import using_config

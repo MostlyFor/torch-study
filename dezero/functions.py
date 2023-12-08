@@ -146,6 +146,22 @@ class MatMul(Function):
 def matmul(x,W):
     return MatMul()(x, W)
 
+class Linear(Function):
+    def forward(self, x, W, b):
+        y = x.dot(W)
+        if b is not None:
+            y += b
+        return y
+
+    def backward(self, gy):
+        x, W, b = self.inputs
+        gb = None if b.data is None else sum_to(gy, b.shape)
+        gx = matmul(gy, W.T) # TODO: MatMul이랑 어떻게 다른지 알아보기
+        gW = matmul(x.T, gy)
+        return gx, gW, gb
+    
+def linear(x, W, b=None):
+    return Linear()(x, W, b)
 
 class MeanSquaredError(Function):
     def forward(self, x0, x1): # 예측값, 정답값
@@ -160,8 +176,8 @@ class MeanSquaredError(Function):
         gx1 = -gx0
         return gx0, gx1
 
-def mean_squared_error(x0, x1):
-    return MeanSquaredError()(x0, x1)
+def mean_squared_error(y_pred, y):
+    return MeanSquaredError()(y_pred, y)
 
 class Exp(Function):
     def forward(self, x):
@@ -175,3 +191,15 @@ class Exp(Function):
 def exp(x):
     return Exp()(x)
 
+def linear_simple(x, W , b= None):
+    t = matmul(x, W)
+    if b is None:
+        return t
+
+    y = t+b
+    t.data = None # t 데이터는 더이상 필요가 없음 + 역전파 시에도
+    return y
+
+def sigmoid_simple(x): #TODO : sigmoid 클래스 완성
+    x = as_variable(x)
+    return 1 / (1 + exp(-x))
