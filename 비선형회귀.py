@@ -3,6 +3,7 @@ from dezero import Variable, Model, MLP
 import dezero.layers as L
 import dezero.functions as F
 import matplotlib.pyplot as plt
+from dezero import optimizers
 
 # 학습 데이터 생성
 np.random.seed(0)
@@ -15,6 +16,8 @@ iters = 10000
 
 
 model = MLP([10, 1])
+optimizer = optimizers.SGD(lr)
+optimizer.setup(model)
         
 
 for i in range(iters):
@@ -25,8 +28,7 @@ for i in range(iters):
     model.cleargrads()
     loss.backward()
     
-    for p in model.params():
-        p.data -= lr * p.grad.data
+    optimizer.update()
     
     if i % 1000 == 0:
         print(loss)
