@@ -1,47 +1,43 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from dezero import Variable
 import dezero.functions as F
+import dezero.layers as L
+from dezero.layers import Layer
 
-
+# 학습 데이터 생성
 np.random.seed(0)
 x = np.random.rand(100,1)
 y = np.sin(2 * np.pi * x) + np.random.rand(100,1)
 
 
+model = Layer()
+model.l1 = L.Linear(10)
+model.l2 = L.Linear(1)
 
-I, H, O = 1, 10 ,1
-W1, b1 = Variable(np.random.randn(I, H)), Variable(np.zeros(10))
-W2, b2 = Variable(np.random.randn(H, O)), Variable(np.zeros(1))
 
 def predict(x):
-    y = F.linear_simple(x, W1, b1)
-    y = F.sigmoid_simple(y)
-    y = F.linear_simple(y, W2, b2)
+    y = model.l1(x)
+    y = F.sigmoid(y)
+    y = model.l2(y)
     return y
 
 
-lr = 0.5 # lr
+lr = 0.2 # lr
 iters = 10000
 
 for i in range(iters):
     y_pred = predict(x)
     loss = F.mean_squared_error(y, y_pred)
     
-    W1.cleargrad()
-    b1.cleargrad()
-    W2.cleargrad()
-    b2.cleargrad()
+    model.cleargrads()
     loss.backward()
     
-    W1.data -= lr * W1.grad.data
-    b1.data -= lr * b1.grad.data
-    W2.data -= lr * W2.grad.data
-    b2.data -= lr * b2.grad.data
+    for l in [model.l1, model.l2]:
+        for p in l.params():
+            p.data -= lr * p.grad.data
     
     if i % 1000 == 0:
         print(loss)
-
 
 y_pred = predict(x)
 
@@ -54,6 +50,5 @@ plt.scatter(x, y_pred.data, color = 'red') # 예측값
 # 그래프에 레이블 추가
 plt.xlabel('X')
 plt.ylabel('Y = sinX')
-plt.legend()  # 범례 표시
 
 plt.show()
