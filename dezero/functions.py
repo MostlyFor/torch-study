@@ -156,7 +156,7 @@ class Linear(Function):
     def backward(self, gy):
         x, W, b = self.inputs
         gb = None if b.data is None else sum_to(gy, b.shape)
-        gx = matmul(gy, W.T) # TODO: MatMul이랑 어떻게 다른지 알아보기
+        gx = matmul(gy, W.T)
         gW = matmul(x.T, gy)
         return gx, gW, gb
     
@@ -199,10 +199,6 @@ def linear_simple(x, W , b= None):
     y = t+b
     t.data = None # t 데이터는 더이상 필요가 없음 + 역전파 시에도
     return y
-
-def sigmoid_simple(x): #TODO : sigmoid 클래스 완성
-    x = as_variable(x)
-    return 1 / (1 + exp(-x))
 
 class Sigmoid(Function):
     def forward(self, x):
