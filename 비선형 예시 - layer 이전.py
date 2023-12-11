@@ -21,8 +21,8 @@ def predict(x):
     return y
 
 
-lr = 1 # lr
-iters = 100000
+lr = 0.5 # lr
+iters = 10000
 
 for i in range(iters):
     y_pred = predict(x)
