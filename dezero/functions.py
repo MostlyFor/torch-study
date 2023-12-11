@@ -203,3 +203,16 @@ def linear_simple(x, W , b= None):
 def sigmoid_simple(x): #TODO : sigmoid 클래스 완성
     x = as_variable(x)
     return 1 / (1 + exp(-x))
+
+class Sigmoid(Function):
+    def forward(self, x):
+        y = 1 / (1 + np.exp(-x))
+        return y
+
+    def backward(self, gy):
+        y = self.outputs[0]()
+        gx = gy * y * (1 - y)
+        return gx
+
+def sigmoid(x):
+    return Sigmoid()(x)

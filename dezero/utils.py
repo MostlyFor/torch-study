@@ -64,7 +64,7 @@ def plot_dot_graph(output, verbose=True, to_file="graph.png"):
 
     # file은 쓰여졌고 이제 dot 명령어 쓰기
     extension = os.path.splitext(to_file)[1][1:] # 확장자 이름
-    cmd = "dot {} -T {} -o {}".format(graph_path, extension, to_file)
+    cmd = "dot {} -T {} -o {}".format(graph_path, extension, './pic/' + to_file)
     subprocess.run(cmd, shell=True) # os.system보다 안전하게 다루기
 
 def sum_to(x, shape):

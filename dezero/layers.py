@@ -5,10 +5,10 @@ import dezero.functions as F
 
 class Layer:
     def __init__(self):
-        self._params = set()
+        self._params = set() # 이름을 모아두는 곳
         
     def __setattr__(self, name, value):
-        if isinstance(value,Parameter): # Parameter -> 이름 추가
+        if isinstance(value, (Parameter, Layer)): # Parameter 나 Layer인 경우에만 추가 ! self.out_size 같은 정보는 필요 x
             self._params.add(name)
         super().__setattr__(name, value)
         
@@ -23,34 +23,21 @@ class Layer:
     def forward(self, inputs):
         raise NotImplemented
     
-    def params(self):
+    def params(self): # Layer에 속한 parameter들을 반환하는 함수
         for name in self._params:
-            yield self.__dict__[name]
+            obj = self.__dict__[name]
+            
+            if isinstance(obj, Layer):
+                yield from obj.params()
+            else: 
+                yield obj
     
     def cleargrads(self):
         for param in self.params():
             param.cleargrad()
         
 
-
-class Linear_old(Layer):
-    def __init__(self, in_size, out_size, nobias = False, dtype = np.float32):
-        super().__init__()
-        
-        I, O = in_size, out_size
-        W_data = np.random.randn(I, O).astype(dtype) * np.sqrt(1/I) # 가중치 초기화
-        self.W = Parameter(W_data, name = 'W')
-        if nobias:
-            self.b = None
-        else:
-            self.b = Parameter(np.zeros(0, dtype = dtype), name = 'b')
-            
-    def forward(self, x):
-        y = F.linear(x, self.W, self.b)
-        return y
-
-
-class Linear(Layer): # input_size 조절 x
+class Linear(Layer): # input_size 조절 x, out_size만 조절
     def __init__(self, out_size, nobias = False, dtype = np.float32, in_size = None):
         super().__init__()
         self.in_size = in_size
@@ -74,7 +61,7 @@ class Linear(Layer): # input_size 조절 x
         
     def forward(self, x):
         if self.W.data is None:
-            self.in_size = x.shape[1]
+            self.in_size = x.shape[1] # 여기서 input은 자동으로 설정
             self._init_W()
 
         y = F.linear(x, self.W, self.b)

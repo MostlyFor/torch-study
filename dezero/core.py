@@ -59,7 +59,7 @@ class Variable:
         p = str(self.data).replace("\n", "\n" + " " * 9)
         return "variable(" + p + ")"
 
-    def backward(self, retain_grad=False, create_graph = False):
+    def backward(self, retain_grad=True, create_graph = False):
         if self.grad is None:
             self.grad = Variable(np.ones_like(self.data))
 
@@ -112,7 +112,7 @@ def as_ndarray(x):
 
 
 class Function:
-    def __call__(self, *inputs : list[Variable]) -> list[Variable]:
+    def __call__(self, *inputs : list[Variable or np.ndarray]) -> list[Variable]:
         #for forward
         inputs = [as_variable(x) for x in inputs]
         xs = [x.data for x in inputs]
