@@ -16,7 +16,7 @@ iters = 10000
 
 
 model = MLP([10, 1])
-optimizer = optimizers.SGD(lr)
+optimizer = optimizers.MomentumSGD(lr)
 optimizer.setup(model)
         
 

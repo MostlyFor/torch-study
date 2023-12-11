@@ -9,7 +9,7 @@ np.random.seed(0)
 
 # 데이터 생성
 x = Variable(np.random.rand(100, 1))
-y = 5 + 2 * x + np.random.rand(100, 1) # Variable 객체를 두 개 감싸는 문제 발생
+y = 5 + 2 * x + np.random.rand(100, 1)
 
 W = Variable(np.zeros([1,1]))
 b = Variable([1])
