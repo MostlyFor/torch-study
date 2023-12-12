@@ -10,7 +10,9 @@ class Config:
 class Variable:
     __array_priority__ = 200
     def __init__(self, data : any, name=None):
-        self.data = np.array(data).astype(np.float64) # ndarray로 datatype 고정, float64
+        if data is not None:
+            if not isinstance(data, array_types):
+                raise TypeError('{} is not supported'.format(type(data)))
         if data is None:
             self.data = None
         self.name = name
@@ -287,6 +289,7 @@ def setup_variable():
     Variable.__truediv__ = div
     Variable.__rtruediv__ = rdiv
     Variable.__pow__ = pow
-    
+    Variable.__getitem__ = dezero.functions.get_item
+
 class Parameter(Variable):
     pass
