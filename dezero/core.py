@@ -11,10 +11,9 @@ class Variable:
     __array_priority__ = 200
     def __init__(self, data : any, name=None):
         if data is not None:
-            if not isinstance(data, array_types):
+            if not isinstance(data, np.ndarray):
                 raise TypeError('{} is not supported'.format(type(data)))
-        if data is None:
-            self.data = None
+        self.data = data
         self.name = name
         self.grad = None
         self.creator = None
