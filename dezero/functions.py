@@ -260,7 +260,7 @@ class Softmax(Function):
     def backward(self, gy):
         y = self.outputs[0]()
         gx = y * gy
-        sumdx = gx.sum(axis=self.axis, keepdims=True)
+        sumdx = sum(gx, axis=self.axis, keepdims=True)
         gx -= y * sumdx
         return gx
 
@@ -276,7 +276,6 @@ def softmax_cross_entropy_simple(x,t):
     p = softmax(x)
     p = clip(p, 1e-15, 1.0)
     log_p = log(p)
-    print(type(log_p))
     tlog_p = log_p[np.arange(N), t.data]
     y = -1 * sum(tlog_p) / N
     return y
@@ -289,8 +288,6 @@ class Clip(Function):
 
     def forward(self, x):
         y = np.clip(x, self.x_min, self.x_max)
-        print(type(y))
-        print(y)
         
         return y
 
